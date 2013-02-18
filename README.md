@@ -2,7 +2,13 @@
 /****** Rovo-Tabs Tabbing JQuery Plugin *****/
 /********************************************/
 
-	PURPOSE: Simple Tab-Switcher (Designed to work with JQuery Mobile)
+	PURPOSE: Simple Tab-Switcher (Designed to work with JQuery Mobile and Twitter Bootstrap)
+
+	HTML5 and JQuery based.
+
+	Was not a big fan of the existing tab switching plugins out there and decided to make my own!
+
+	Also thought it would be a good experience with learning how to write custom JQuery plugins!
 
 	TARGET MARKUP:
 	<div id="tabs">
@@ -22,9 +28,28 @@
 
 	SETUP CALL:
 	
-		$('#tabs').rovoTabs();
+		/* NO INITIAL OPTIONS */
+		var tabManager = $('#tabs').rovoTabs(); 
+
+		/* WITH INITIAL OPTIONS */
+		var tabManager = $('#tabs').rovoTabs({
+			updateWindowHash : true
+		});
+
+	INITIAL OPTIONS: 
+		
+		-updateWindowHash : true or false (boolean)
+
 
 	SWITCH TO A PARTICULAR TAB:
 	
-		$('#tabs').rovoTabs('switchToTab', '#tab-2');
+		tabManager.rovoTabs('switchToTab', '#tab-2');
 
+	AUTOMATICALLY UPDATE WINDOW LOCATION HASH:
+	
+		Current URL: http://localhost.com:8888#tab-2
+
+		tabManager.rovoTabs('updateWindowHash', true);
+		tabManager.rovoTabs('switchToTab', '#tab-1');
+
+		New URL: http://localhost.com:8888#tab-1

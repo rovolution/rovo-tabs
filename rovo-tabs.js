@@ -29,6 +29,29 @@
 /******************************************/
 (function($) {
 	var privateMethods = {
+		setInitOptions : function(options) {
+			var validOptions = (function() {
+				for(var optName in options) { if(typeof options[optName] !== 'boolean') { return false; }};
+				return true;
+			})();
+
+			if(validOptions) {
+				$.extend(this, options);
+			} else {
+				throw new Error("options inside JavaScript Object are not of type boolean")
+			}
+		},
+
+		bindEventHandlers : function() {
+			var tabs = this;
+			tabs.tabsListElems.on("click", "a", function() {
+				privateMethods.setActiveTabLinkRef.call(tabs, $(this));
+				privateMethods.showActiveTabAndHideSiblingTabs.call(tabs);
+
+				if(tabs.updateWindowHash) { privateMethods.updateWindowLocationHash($(this).data('rovo-tabs-content')) };
+			});
+		},
+
 		setActiveTabLinkRef : function(newActiveTabLink) {
 			this.activeTabLink.removeClass('rovo-tabs-active');
 			this.activeTabLink = newActiveTabLink;
@@ -43,12 +66,8 @@
 			activeTabContentJQueryRef.siblings().hide();
 		},
 
-		bindEventHandlers : function() {
-			var tabs = this;
-			tabs.tabsListElems.on("click", "a", function() {
-				privateMethods.setActiveTabLinkRef.call(tabs, $(this));
-				privateMethods.showActiveTabAndHideSiblingTabs.call(tabs);
-			});
+		updateWindowLocationHash : function(newHashLocation) {	
+			window.location.hash = newHashLocation;
 		}
 	};
 
@@ -57,26 +76,33 @@
 			this.tabsListElems = this.find('ul.rovo-tabs-list > li');
 			this.activeTabLink = this.tabsListElems.children('a.rovo-tabs-active').first();
 			
+			if(arguments) privateMethods.setInitOptions.call(this, arguments[0]);
+			privateMethods.bindEventHandlers.call(this);
+			
 			if(this.activeTabLink.length) {
-				privateMethods.showActiveTabAndHideSiblingTabs.call(this);
+				this.activeTabLink.trigger('click');
 			} else {
 				//If first active tab not specified just set the first tab in the content list as the active tab
-				var firstTabRef = this.tabsListElems.children("a").first().data("rovo-tabs-content");
-				publicMethods.switchToTab.call(this, firstTabRef);
+				var firstTabLink = this.tabsListElems.children("a").first();
+				firstTabLink.trigger('click');
 			}
-
-			privateMethods.bindEventHandlers.call(this);
 		},
 
 		switchToTab : function(newTabRef) {
 			var newActiveTabLink = this.tabsListElems.children("a[data-rovo-tabs-content='" + newTabRef + "']").first();
-			privateMethods.setActiveTabLinkRef.call(this, newActiveTabLink);
-			privateMethods.showActiveTabAndHideSiblingTabs.call(this);
+			newActiveTabLink.trigger('click');
+		},
+
+		updateWindowHash : function(option) {
+			if(typeof option === 'boolean') {
+				this.updateWindowHash = setting;
+			} else {
+				throw new Error("updateWindowHash option must be of type boolean (true or false)");
+			}
 		}
 	};
 
 	$.fn.rovoTabs = function(method) {
-
 		if (publicMethods[method]) {
 			publicMethods[method].apply(this, Array.prototype.slice.call(arguments, 1));
 		} else if ( typeof method === 'object' || ! method) {
